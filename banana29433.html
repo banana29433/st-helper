@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Plan Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1e1e1e;
+            color: #ffff;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ffffff;
+        }
+
+        button:hover {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #d0d0d0;
+        }
+
+        pre {
+            background-color: #2f2f2f;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Standard Training Helper</h1>
+    <button onclick="generatePlan()">Create Standard Training</button>
+    <button onclick="copyPlan()">Copy Training Plan</button>
+    <pre id="trainingPlan"></pre>
+    <h2>NOTICE: You may need to rearrange drills for them to make sense! Scenarios will always generate in group order so you may rearrange them if you want.</h2>
+
+    <script>
+        const scenarios = {
+            group1: ["Red Fox", "Red Spread"],
+            group2: ["Intercom Sweep", "Riot"],
+            group3: ["TSC Sim", "Hostage Situation"]
+        };
+
+        const drills = {
+            "Red Fox": [
+                { drill: "[A1] 1 Armed Class-D raids the Breach Shelter", response: "Class-D should be terminated if possible and reported on the radio", identifier: "B" },
+                { drill: "[A2] 2 Armed Class-Ds raid the Breach Shelter", response: "Class-Ds should be terminated if possible and reported on the radio", identifier: "B" },
+                { drill: "[A3] 3 Armed Class-Ds raid the Breach Shelter", response: "CDs terminated and reported on the radio. BS closed early if not already closed.", identifier: "B" },
+                { drill: "[B1] Class-D present with a civil department member without a security escort present", response: "If the civilian can provide sufficient evidence that a security escort was present, then an SD should replace them. Otherwise, terminate the Class-D.", identifier: "Z" },
+                { drill: "[C1] Level 4 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
+                { drill: "[C2] Level 4 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[D1] Dept. L4 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "D" },
+                { drill: "[D2] Dept. L4 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[E1] MTF B7 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "E" },
+                { drill: "[E2] MTF B7 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[E3] MTF S9 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "E" },
+                { drill: "[E4] MTF S9 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[E5] MTF A1 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "E" },
+                { drill: "[E6] MTF A1 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[E7] MTF TO ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "E" },
+                { drill: "[E8] MTF TO ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[F1] Level 0 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
+                { drill: "[F2] Level 1 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
+                { drill: "[F3] Level 2 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
+                { drill: "[F4] Level 3 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
+                { drill: "[F5] Level 4 standing outside BS", response: "SD should allow the SD to stay outside", identifier: "I" },
+                { drill: "[G1] Server Room Hack", response: "SD should report the hack and request it be unhacked. If nobody is available to unhack then the BS is to be declared comprimised", identifier: "J" },
+                { drill: "[H1] FP going to BS after it has closed.", response: "SD should allow the FP to stay inside the airlock", identifier: "K" },
+                { drill: "[J1] Lure any SCP outside the BS.", response: "SD should close the BS and report the SCP.", identifier: "B" },
+                { drill: "[K1] MTF B7 relocating an SD.", response: "SD should comply", identifier: "M" },
+                { drill: "[K2] MTF S9 relocating an SD.", response: "SD should comply", identifier: "M" },
+                { drill: "[K3] MTF A1 relocating an SD.", response: "SD should comply", identifier: "M" },
+                { drill: "[K4] SD Senior+ relocating an SD", response: "SD should comply as long as they don't leave the BS junction.", identifier: "M" }
+            ],
+            "Red Spread": [
+                { drill: "[A1] 1 Armed Class-D raids the Breach Shelter", response: "Class-D should be terminated if possible and reported on the radio", identifier: "B" },
+                { drill: "[A2] 2 Armed Class-Ds raid the Breach Shelter", response: "Class-Ds should be terminated if possible and reported on the radio", identifier: "B" },
+                { drill: "[A3] 3 Armed Class-Ds raid the Breach Shelter", response: "CDs terminated and reported on the radio. BS closed early if not already closed.", identifier: "B" },
+                { drill: "[B1] Class-D present with a civil department member without a security escort present", response: "If the civilian can provide sufficient evidence that a security escort was present, then an SD should replace them. Otherwise, terminate the Class-D.", identifier: "Z" },
+                { drill: "[C1] Level 4 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
+                { drill: "[C2] Level 4 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[D1] Dept. L4 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
+                { drill: "[D2] Dept. L4 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[E1] MTF B7 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
+                { drill: "[E2] MTF B7 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[E3] MTF S9 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
+                { drill: "[E4] MTF S9 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[E5] MTF A1 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
+                { drill: "[E6] MTF A1 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[E7] MTF TO ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
+                { drill: "[E8] MTF TO ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
+                { drill: "[F1] Level 0 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
+                { drill: "[F2] Level 1 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
+                { drill: "[F3] Level 2 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
+                { drill: "[F4] Level 3 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
+                { drill: "[F5] Level 4 standing outside BS", response: "SD should allow the SD to stay outside", identifier: "I" },
+                { drill: "[G1] Server Room Hack", response: "SD should report the hack and request it be unhacked. If nobody is available to unhack then the BS is to be declared comprimised", identifier: "J" },
+                { drill: "[K1] MTF B7 relocating an SD.", response: "SD should comply", identifier: "M" },
+                { drill: "[K2] MTF S9 relocating an SD.", response: "SD should comply", identifier: "M" },
+                { drill: "[K3] MTF A1 relocating an SD.", response: "SD should comply", identifier: "M" },
+                { drill: "[L1] MTF Operative ordering SD to sweep the site.", response: "SD should comply", identifier: "L" },
+                { drill: "[L2] Level-4 ordering SD to sweep the site.", response: "SD should comply", identifier: "L" }
+            ],
+            "Riot": [
+                { drill: "[A1] Riot as a Class-D", response: "Termination upon good opportunity", identifier: "A" },
+                { drill: "[B1] Enter Zone D as a Level-3 or below", response: "SD should order you to leave", identifier: "B" },
+                { drill: "[C1] Wallshoot from TSTAs as a Class-D", response: "SD should push up to kill you", identifier: "C" },
+                { drill: "[D1] Push past formations as an SD Senior or below", response: "Attendees will remind the combative on the radio not to push in. Should the combative ignore, then report to the relevant command members.", identifier: "D" },
+                { drill: "[E1] Enter Zone D as a Leve-4 or above", response: "SD should push up to kill you", identifier: "E" },
+                { drill: "[F1] Relocate an SD as an SD Senior or above", response: "SD should relocate", identifier: "F" },
+                { drill: "[F2] Relocate an SD as an SRU Agent", response: "SD should relocate", identifier: "F" },
+                { drill: "[F3] Relocate an SD as a S9 Operative or above", response: "SD should relocate", identifier: "F" },
+                { drill: "[G1] Order a push in as SRU, MTF or L4+ during the riot", response: "If the riot is manual, attendees will push in. If it is paid or auto, then attendees will ignore.", identifier: "G" },
+                { drill: "[I1] Order a push in as an unauthorized rank after the riot", response: "Attendees should ignore", identifier: "I" },
+                { drill: "[H1] Order a push in as SRU, MTF or L4+ after the riot", response: "If the riot is manual, attendees will push in. If it is paid or auto, then attendees will ignore.", identifier: "H" }
+            ],
+            "TSC Sim": [
+                { drill: "[A1] Riot as a Class-D", response: "Termination", identifier: "A" },
+                { drill: "[A2] Step over the line as a Class-D", response: "Termination", identifier: "A" },
+                { drill: "[A3] Push another Class-D over the line", response: "Warning > Termination", identifier: "A" },
+                { drill: "[B1] Order attendees to begin striking as Security Lieutenant+", response: "Attendees should begin striking", identifier: "B" },
+                { drill: "[C1] Walk around as a Class-E", response: "Termination", identifier: "C" },
+                { drill: "[D1] Terminate a QnA host", response: "DFSC Status", identifier: "D" },
+                { drill: "[D2] Terminate a Level 4 inside TSC", response: "DFSC Status", identifier: "D" },
+                { drill: "[D3] Terminate a Level 4 on a combative team inside TSC", response: "Termination (no DFSC status)", identifier: "D" },
+                { drill: "[E1] Enter TSC as a Level 4", response: "Attendees should allow you to stay", identifier: "E" },
+                { drill: "[E2] Stand on the catwalks as a Level 3", response: "Attendees should allow you to stay", identifier: "E" },
+                { drill: "[F1] Break the glass as a Class D then enter TSC as a Level 2 or below", response: "Attendees should instruct you to leave", identifier: "F" },
+                { drill: "[G1] Relocate an SD as an SD Specialist", response: "Attendees should relocate if valid reasoning is given", identifier: "G" },
+                { drill: "[G2] Relocate an SD as an SD Senior or above", response: "Attendees should relocate", identifier: "G" },
+                { drill: "[H1] Heal a rioting Class D", response: "Termination", identifier: "H" },
+                { drill: "[H1] Heal a warning shot", response: "No response", identifier: "H" },
+                { drill: "[I1] Fake card spam", response: "Attendees should ignore", identifier: "I" },
+                { drill: "[I2] Real card spam", response: "Termination", identifier: "I" },
+                { drill: "[J1] Hold contraband", response: "Termination", identifier: "J" },
+                { drill: "[J2] Hold a Stolen Access Card", response: "No response", identifier: "J" },
+                { drill: "[J3] Hold a Hostile Access Card", response: "Termination", identifier: "J" },
+                { drill: "[K1] Stand up against the barriers", response: "Warning > Termination", identifier: "K" },
+                { drill: "[K2] Loot a dead body", response: "Termination", identifier: "K" },
+                { drill: "[L1] Ready fists", response: "No response", identifier: "L" },
+                { drill: "[L2] Punch with fists", response: "Termination", identifier: "L" },
+            ]
+        };
+
+        const maxDrillsPerScenario = {
+            "Red Fox": 5,
+            "Red Spread": 5,
+            "Riot": 5,
+            "TSC Sim": 7
+        };
+
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function getRandomDrills(scenario) {
+            const scenarioDrills = drills[scenario];
+            const maxDrills = maxDrillsPerScenario[scenario];
+            const shuffled = scenarioDrills.sort(() => 0.5 - Math.random());
+            const selectedDrills = [];
+            const usedIdentifiers = new Set();
+
+            for (let i = 0; i < shuffled.length && selectedDrills.length < maxDrills; i++) {
+                const drill = shuffled[i];
+                if (!usedIdentifiers.has(drill.identifier)) {
+                    selectedDrills.push(drill);
+                    usedIdentifiers.add(drill.identifier);
+                }
+            }
+            return selectedDrills;
+        }
+
+        function generatePlan() {
+            let plan = "";
+
+            // Generate a scenario from each group
+            const scenario1 = getRandomItem(scenarios.group1);
+            const scenario2 = getRandomItem(scenarios.group2);
+            const scenario3 = getRandomItem(scenarios.group3);
+
+            
+            plan += `[${scenario1}]\n`;
+            getRandomDrills(scenario1).forEach((item, index) => {
+                plan += `${index + 1}. ${item.drill}\n> ${item.response}\n`;
+            });
+
+            
+            plan += `\n[${scenario2}]\n`;
+            if (scenario2 !== "Intercom Sweep") {
+                getRandomDrills(scenario2).forEach((item, index) => {
+                    plan += `${index + 1}. ${item.drill}\n> ${item.response}\n`;
+                });
+            }
+
+            
+            plan += `\n[${scenario3}]\n`;
+            if (scenario3 !== "Hostage Situation") {
+                getRandomDrills(scenario3).forEach((item, index) => {
+                    plan += `${index + 1}. ${item.drill}\n> ${item.response}\n`;
+                });
+            }
+
+            document.getElementById("trainingPlan").textContent = plan;
+        }
+
+        function copyPlan() {
+            const trainingPlan = document.getElementById("trainingPlan").textContent;
+            navigator.clipboard.writeText(trainingPlan).then(() => {
+                alert("Training plan copied to clipboard!");
+            }).catch(err => {
+                console.error('Failed to copy!', err);
+            });
+        }
+    </script>
+</body>
+
+</html>
