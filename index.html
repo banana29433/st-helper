@@ -4,175 +4,569 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Training Plan Generator</title>
+    <title>Standard Training Creator</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            padding-top: 5px;
             background-color: #1e1e1e;
-            color: #ffff;
+            color: #ffffff;
+            max-width: 1200px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            margin-top: 0;
         }
 
         button {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #ffffff;
+            margin: 10px;
+            margin-left: 0;
+            padding: 12px 24px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: bold;
         }
 
         button:hover {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #d0d0d0;
+            background-color: #106ebe;
         }
 
         pre {
             background-color: #2f2f2f;
+            padding: 20px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+
+        .notice {
+            background-color: #333;
+            padding: 15px;
+            border-left: 4px solid #0078d4;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        input {
             padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #0078d4;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+            width: 100px;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #fff;
         }
     </style>
 </head>
 
 <body>
-    <h1>Standard Training Helper</h1>
+    <h1>Standard Training Creator</h1>
+    <div style="margin-bottom: 20px;">
+        <label for="cohostCount" style="margin-right: 10px;">Number of Cohosts:</label>
+        <input type="number" id="cohostCount" min="0" value="0"
+            style="padding: 5px; background: #333; color: white; border: 1px solid #666;">
+    </div>
     <button onclick="generatePlan()">Create Standard Training</button>
     <button onclick="copyPlan()">Copy Training Plan</button>
     <pre id="trainingPlan"></pre>
-    <h2>NOTICE: You may need to rearrange drills for them to make sense! Scenarios will always generate in group order so you may rearrange them if you want.</h2>
+    <div class="notice">
+        <h3>Notice</h3>
+        <p>Scenarios will always generate in group order so you may rearrange them if you want.</p>
+    </div>
 
     <script>
         const scenarios = {
             group1: ["Red Fox", "Red Spread"],
-            group2: ["Intercom Sweep", "Riot"],
+            group2: ["Intercom Sweep", "Paid Riot", "Manual Riot"],
             group3: ["TSC Sim", "Hostage Situation"]
         };
 
-        const drills = {
-            "Red Fox": [
-                { drill: "[A1] 1 Armed Class-D raids the Breach Shelter", response: "Class-D should be terminated if possible and reported on the radio", identifier: "B" },
-                { drill: "[A2] 2 Armed Class-Ds raid the Breach Shelter", response: "Class-Ds should be terminated if possible and reported on the radio", identifier: "B" },
-                { drill: "[A3] 3 Armed Class-Ds raid the Breach Shelter", response: "CDs terminated and reported on the radio. BS closed early if not already closed.", identifier: "B" },
-                { drill: "[B1] Class-D present with a civil department member without a security escort present", response: "If the civilian can provide sufficient evidence that a security escort was present, then an SD should replace them. Otherwise, terminate the Class-D.", identifier: "Z" },
-                { drill: "[C1] Level 4 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
-                { drill: "[C2] Level 4 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[D1] Dept. L4 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "D" },
-                { drill: "[D2] Dept. L4 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[E1] MTF B7 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "E" },
-                { drill: "[E2] MTF B7 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[E3] MTF S9 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "E" },
-                { drill: "[E4] MTF S9 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[E5] MTF A1 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "E" },
-                { drill: "[E6] MTF A1 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[E7] MTF TO ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "E" },
-                { drill: "[E8] MTF TO ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[F1] Level 0 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
-                { drill: "[F2] Level 1 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
-                { drill: "[F3] Level 2 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
-                { drill: "[F4] Level 3 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
-                { drill: "[F5] Level 4 standing outside BS", response: "SD should allow the SD to stay outside", identifier: "I" },
-                { drill: "[G1] Server Room Hack", response: "SD should report the hack and request it be unhacked. If nobody is available to unhack then the BS is to be declared comprimised", identifier: "J" },
-                { drill: "[H1] FP going to BS after it has closed.", response: "SD should allow the FP to stay inside the airlock", identifier: "K" },
-                { drill: "[J1] Lure any SCP outside the BS.", response: "SD should close the BS and report the SCP.", identifier: "B" },
-                { drill: "[K1] MTF B7 relocating an SD.", response: "SD should comply", identifier: "M" },
-                { drill: "[K2] MTF S9 relocating an SD.", response: "SD should comply", identifier: "M" },
-                { drill: "[K3] MTF A1 relocating an SD.", response: "SD should comply", identifier: "M" },
-                { drill: "[K4] SD Senior+ relocating an SD", response: "SD should comply as long as they don't leave the BS junction.", identifier: "M" }
-            ],
-            "Red Spread": [
-                { drill: "[A1] 1 Armed Class-D raids the Breach Shelter", response: "Class-D should be terminated if possible and reported on the radio", identifier: "B" },
-                { drill: "[A2] 2 Armed Class-Ds raid the Breach Shelter", response: "Class-Ds should be terminated if possible and reported on the radio", identifier: "B" },
-                { drill: "[A3] 3 Armed Class-Ds raid the Breach Shelter", response: "CDs terminated and reported on the radio. BS closed early if not already closed.", identifier: "B" },
-                { drill: "[B1] Class-D present with a civil department member without a security escort present", response: "If the civilian can provide sufficient evidence that a security escort was present, then an SD should replace them. Otherwise, terminate the Class-D.", identifier: "Z" },
-                { drill: "[C1] Level 4 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
-                { drill: "[C2] Level 4 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[D1] Dept. L4 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
-                { drill: "[D2] Dept. L4 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[E1] MTF B7 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
-                { drill: "[E2] MTF B7 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[E3] MTF S9 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
-                { drill: "[E4] MTF S9 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[E5] MTF A1 ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
-                { drill: "[E6] MTF A1 ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[E7] MTF TO ordering the Breach Shelter to be opened", response: "Breach Shelter should be opened", identifier: "C" },
-                { drill: "[E8] MTF TO ordering the Breach Shelter to be closed", response: "Breach Shelter should be closed", identifier: "B" },
-                { drill: "[F1] Level 0 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
-                { drill: "[F2] Level 1 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
-                { drill: "[F3] Level 2 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
-                { drill: "[F4] Level 3 standing outside BS", response: "SD should order the FP in.", identifier: "I" },
-                { drill: "[F5] Level 4 standing outside BS", response: "SD should allow the SD to stay outside", identifier: "I" },
-                { drill: "[G1] Server Room Hack", response: "SD should report the hack and request it be unhacked. If nobody is available to unhack then the BS is to be declared comprimised", identifier: "J" },
-                { drill: "[K1] MTF B7 relocating an SD.", response: "SD should comply", identifier: "M" },
-                { drill: "[K2] MTF S9 relocating an SD.", response: "SD should comply", identifier: "M" },
-                { drill: "[K3] MTF A1 relocating an SD.", response: "SD should comply", identifier: "M" },
-                { drill: "[L1] MTF Operative ordering SD to sweep the site.", response: "SD should comply", identifier: "L" },
-                { drill: "[L2] Level-4 ordering SD to sweep the site.", response: "SD should comply", identifier: "L" }
-            ],
-            "Riot": [
-                { drill: "[A1] Riot as a Class-D", response: "Termination upon good opportunity", identifier: "A" },
-                { drill: "[B1] Enter Zone D as a Level-3 or below", response: "SD should order you to leave", identifier: "B" },
-                { drill: "[C1] Wallshoot from TSTAs as a Class-D", response: "SD should push up to kill you", identifier: "C" },
-                { drill: "[D1] Push past formations as an SD Senior or below", response: "Attendees will remind the combative on the radio not to push in. Should the combative ignore, then report to the relevant command members.", identifier: "D" },
-                { drill: "[E1] Enter Zone D as a Leve-4 or above", response: "SD should push up to kill you", identifier: "E" },
-                { drill: "[F1] Relocate an SD as an SD Senior or above", response: "SD should relocate", identifier: "F" },
-                { drill: "[F2] Relocate an SD as an SRU Agent", response: "SD should relocate", identifier: "F" },
-                { drill: "[F3] Relocate an SD as a S9 Operative or above", response: "SD should relocate", identifier: "F" },
-                { drill: "[G1] Order a push in as SRU, MTF or L4+ during the riot", response: "If the riot is manual, attendees will push in. If it is paid or auto, then attendees will ignore.", identifier: "G" },
-                { drill: "[I1] Order a push in as an unauthorized rank after the riot", response: "Attendees should ignore", identifier: "I" },
-                { drill: "[H1] Order a push in as SRU, MTF or L4+ after the riot", response: "If the riot is manual, attendees will push in. If it is paid or auto, then attendees will ignore.", identifier: "H" }
-            ],
-            "TSC Sim": [
-                { drill: "[A1] Riot as a Class-D", response: "Termination", identifier: "A" },
-                { drill: "[A2] Step over the line as a Class-D", response: "Termination", identifier: "A" },
-                { drill: "[A3] Push another Class-D over the line", response: "Warning > Termination", identifier: "A" },
-                { drill: "[B1] Order attendees to begin striking as Security Lieutenant+", response: "Attendees should begin striking", identifier: "B" },
-                { drill: "[C1] Walk around as a Class-E", response: "Termination", identifier: "C" },
-                { drill: "[D1] Terminate a QnA host", response: "DFSC Status", identifier: "D" },
-                { drill: "[D2] Terminate a Level 4 inside TSC", response: "DFSC Status", identifier: "D" },
-                { drill: "[D3] Terminate a Level 4 on a combative team inside TSC", response: "Termination (no DFSC status)", identifier: "D" },
-                { drill: "[E1] Enter TSC as a Level 4", response: "Attendees should allow you to stay", identifier: "E" },
-                { drill: "[E2] Stand on the catwalks as a Level 3", response: "Attendees should allow you to stay", identifier: "E" },
-                { drill: "[F1] Break the glass as a Class D then enter TSC as a Level 2 or below", response: "Attendees should instruct you to leave", identifier: "F" },
-                { drill: "[G1] Relocate an SD as an SD Specialist", response: "Attendees should relocate if valid reasoning is given", identifier: "G" },
-                { drill: "[G2] Relocate an SD as an SD Senior or above", response: "Attendees should relocate", identifier: "G" },
-                { drill: "[H1] Heal a rioting Class D", response: "Termination", identifier: "H" },
-                { drill: "[H1] Heal a warning shot", response: "No response", identifier: "H" },
-                { drill: "[I1] Fake card spam", response: "Attendees should ignore", identifier: "I" },
-                { drill: "[I2] Real card spam", response: "Termination", identifier: "I" },
-                { drill: "[J1] Hold contraband", response: "Termination", identifier: "J" },
-                { drill: "[J2] Hold a Stolen Access Card", response: "No response", identifier: "J" },
-                { drill: "[J3] Hold a Hostile Access Card", response: "Termination", identifier: "J" },
-                { drill: "[K1] Stand up against the barriers", response: "Warning > Termination", identifier: "K" },
-                { drill: "[K2] Loot a dead body", response: "Termination", identifier: "K" },
-                { drill: "[L1] Ready fists", response: "No response", identifier: "L" },
-                { drill: "[L2] Punch with fists", response: "Termination", identifier: "L" },
-            ]
+        const scenarioData = {
+            "Red Fox": {
+                cohosts: 0, // Scenario-level requirement
+                variants: [
+                    {
+                        // BS Close between 2/3, p1 outside bs p2 force close not via order p4 turn up late/attempt close
+                        weight: 70,
+                        cohosts: 0,
+                        positions: [
+                            [ // outside bs
+                                { drill: `[A1] Level ${randomInt(0, 3)} at some location outside Breach Shelter`, response: "SD should order them in", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[A2] Level 4 at some location outside Breach Shelter", response: "SD should ignore them", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // force close
+                                { drill: "[B1] 1 Armed Class-D raids the Breach Shelter", response: "Terminate CD. Extra comms credit if reported via radio or vc.", cohosts: 0, maxCohosts: 1 },
+                                { drill: `[B2] ${randomInt(1, 2)} Armed Class-D raids the Breach Shelter`, response: "Terminate CD(s). Close BS if more than one. Extra comms credit if reported via radio or vc.", cohosts: 1, maxCohosts: 1 },
+                                { drill: `[B3] ${randomInt(1, 3)} Armed Class-D raids the Breach Shelter`, response: "Terminate CD(s). Close BS if more than one. Extra comms credit if reported via radio or vc.", cohosts: 2, maxCohosts: 3 },
+                                { drill: "[B4] Lure an SCP outside of the Breach Shelter", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 },
+                                { drill: "[B5] Pass by the Breach Shelter as an affected Class D", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 },
+                                { drill: "[B6] Pass by the Breach Shelter as a Hostile Class D", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 }
+                            ],
+                            [ // (attempt to) relocate someone
+                                { drill: "[C1] Beta-7/Sigma-9/Alpha-1 Operative relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C2] Trainee Operative relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C3] Security Specialist/Senior/Lieutenant relocates an SD", response: "SD should follow orders up to BS junction. Refuse to go further. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C4] SRU Agent below Specialist relocates an SD", response: "SD should refuse orders. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C5] MP Officer below Specialist relocates an SD", response: "SD should follow orders up to BS junction. Refuse to go further. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C6] Level 4 relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // turn up late or attempt open
+                                { drill: `[D1] Level ${randomInt(0, 3)} turns up to the Breach Shelter late`, response: "SD should allow them to remain in the airlock. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D2] Level 4 orders BS to be opened", response: "SD should follow order. Extra comms credit if announced over radio.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D3] Level 3 orders BS to be opened", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D4] Security Lieutenant orders BS to be opened", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D5] SRU Captain orders BS to be opened", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D6] Department L4 orders BS to be opened", response: "SD should follow order. Extra comms credit if announced over radio.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D7] Beta-7/Sigma-9/Alpha-1 Operative orders BS to be opened", response: "SD should follow order. Extra comms credit if announced over radio.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Soft relocate again/soft attempt open again/close
+                                { drill: "[E1] Beta-7/Sigma-9/Alpha-1 Operative relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E2] SRU Agent below Specialist relocates an SD", response: "SD should refuse orders. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E3] Beta-7/Sigma-9/Alpha-1 Operative orders BS to be open/closed.", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E4] Security Lieutenant orders BS to be open/closed", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 }
+                            ]
+                        ]
+                    },
+                    {
+                        // recontain SCP
+                        weight: 10,
+                        positions: [
+                            [ // Only one drill
+                                { drill: "[A1] Lure an SCP inside BS.", response: "Declare comprimised. Follow order before recontaining.", cohosts: 0, maxCohosts: 3 }
+                            ]
+                        ]
+                    },
+                    {
+                        // BS Close between 2/3, p1 outside bs p2 force close not via order p4 turn up late/attempt close
+                        weight: 20,
+                        cohosts: 0,
+                        positions: [
+                            [ // outside bs
+                                { drill: `[A1] Level ${randomInt(0, 3)} at some location outside Breach Shelter`, response: "SD should order them in", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[A2] Level 4 at some location outside Breach Shelter", response: "SD should ignore them", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // force close
+                                { drill: "[B1] 1 Armed Class-D raids the Breach Shelter", response: "Terminate CD. Extra comms credit if reported via radio or vc.", cohosts: 0, maxCohosts: 1 },
+                                { drill: `[B2] ${randomInt(1, 2)} Armed Class-D raids the Breach Shelter`, response: "Terminate CD(s). Close BS if more than one. Extra comms credit if reported via radio or vc.", cohosts: 1, maxCohosts: 1 },
+                                { drill: `[B3] ${randomInt(1, 3)} Armed Class-D raids the Breach Shelter`, response: "Terminate CD(s). Close BS if more than one. Extra comms credit if reported via radio or vc.", cohosts: 2, maxCohosts: 3 },
+                                { drill: "[B4] Lure an SCP outside of the Breach Shelter", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 },
+                                { drill: "[B5] Pass by the Breach Shelter as an affected Class D", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 },
+                                { drill: "[B6] Pass by the Breach Shelter as a Hostile Class D", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 }
+                            ],
+                            [ // (attempt to) relocate someone
+                                { drill: "[C1] Beta-7/Sigma-9/Alpha-1 Operative relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C2] Trainee Operative relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C3] Security Specialist/Senior/Lieutenant relocates an SD", response: "SD should follow orders up to BS junction. Refuse to go further. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C4] SRU Agent below Specialist relocates an SD", response: "SD should refuse orders. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C5] MP Officer below Specialist relocates an SD", response: "SD should follow orders up to BS junction. Refuse to go further. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C6] Level 4 relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // turn up late or attempt open
+                                { drill: `[D1] Hack BS`, response: "The hack should be reported and attendees should return to spawn if nobody is available to un-hack it.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // relocate/soft attempt open again/close
+                                { drill: "[E1] Beta-7/Sigma-9/Alpha-1 Operative relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E2] SRU Agent below Specialist relocates an SD", response: "SD should refuse orders. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E3] Beta-7/Sigma-9/Alpha-1 Operative orders BS to be open/closed.", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E4] Security Lieutenant orders BS to be open/closed", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 }
+                            ]
+                        ]
+                    }
+                ]
+            },
+            "Red Spread": {
+                cohosts: 0, // Scenario-level requirement
+                variants: [
+                    {
+                        // RF with sweep
+                        weight: 50,
+                        cohosts: 0,
+                        positions: [
+                            [ // outside bs
+                                { drill: `[A1] Level ${randomInt(0, 3)} at some location outside Breach Shelter`, response: "SD should order them in", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[A2] Level 4 at some location outside Breach Shelter", response: "SD should ignore them", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // force close
+                                { drill: "[B1] 1 Armed Class-D raids the Breach Shelter", response: "Terminate CD. Extra comms credit if reported via radio or vc.", cohosts: 0, maxCohosts: 1 },
+                                { drill: `[B2] ${randomInt(1, 2)} Armed Class-D raids the Breach Shelter`, response: "Terminate CD(s). Close BS if more than one. Extra comms credit if reported via radio or vc.", cohosts: 1, maxCohosts: 1 },
+                                { drill: `[B3] ${randomInt(1, 3)} Armed Class-D raids the Breach Shelter`, response: "Terminate CD(s). Close BS if more than one. Extra comms credit if reported via radio or vc.", cohosts: 2, maxCohosts: 3 },
+                                { drill: "[B4] Lure an SCP outside of the Breach Shelter", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 },
+                                { drill: "[B5] Pass by the Breach Shelter as an affected Class D", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 },
+                                { drill: "[B6] Pass by the Breach Shelter as a Hostile Class D", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 }
+                            ],
+                            [ // get sweeping
+                                { drill: "[C1] SD ordered to sweep areas by Beta-7/Sigma-9/Alpha-1.", response: "SD should follow orders. Extra comms credit for good coordination.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C2] SD ordered to sweep areas by Level 4.", response: "SD should follow orders. Extra comms credit for good coordination.", cohosts: 0, maxCohosts: 3 }
+
+                            ],
+                            [ // turn up late or attempt open
+                                { drill: `[D1] Level ${randomInt(0, 3)} turns up to the Breach Shelter late`, response: "SD should allow them to remain in the airlock. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D2] Level 4 orders BS to be opened", response: "SD should follow order. Extra comms credit if announced over radio.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D3] Level 3 orders BS to be opened", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D4] Security Lieutenant orders BS to be opened", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D5] SRU Captain orders BS to be opened", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D6] Department L4 orders BS to be opened", response: "SD should follow order. Extra comms credit if announced over radio.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D7] Beta-7/Sigma-9/Alpha-1 Operative orders BS to be opened", response: "SD should follow order. Extra comms credit if announced over radio.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // relocate /soft attempt open again/close
+                                { drill: "[E1] Beta-7/Sigma-9/Alpha-1 Operative relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E2] SRU Agent below Specialist relocates an SD", response: "SD should refuse orders. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E3] Beta-7/Sigma-9/Alpha-1 Operative orders BS to be open/closed.", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E4] Security Lieutenant orders BS to be open/closed", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 }
+                            ]
+                        ]
+                    },
+                    {
+                        // RF copy
+                        weight: 50,
+                        cohosts: 0,
+                        positions: [
+                            [ // outside bs
+                                { drill: `[A1] Level ${randomInt(0, 3)} at some location outside Breach Shelter`, response: "SD should order them in", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[A2] Level 4 at some location outside Breach Shelter", response: "SD should ignore them", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // force close
+                                { drill: "[B1] 1 Armed Class-D raids the Breach Shelter", response: "Terminate CD. Extra comms credit if reported via radio or vc.", cohosts: 0, maxCohosts: 1 },
+                                { drill: `[B2] ${randomInt(1, 2)} Armed Class-D raids the Breach Shelter`, response: "Terminate CD(s). Close BS if more than one. Extra comms credit if reported via radio or vc.", cohosts: 1, maxCohosts: 1 },
+                                { drill: `[B3] ${randomInt(1, 3)} Armed Class-D raids the Breach Shelter`, response: "Terminate CD(s). Close BS if more than one. Extra comms credit if reported via radio or vc.", cohosts: 2, maxCohosts: 3 },
+                                { drill: "[B4] Lure an SCP outside of the Breach Shelter", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 },
+                                { drill: "[B5] Pass by the Breach Shelter as an affected Class D", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 },
+                                { drill: "[B6] Pass by the Breach Shelter as a Hostile Class D", response: "Close BS. Extra comms credit if reported via radio or vc.", cohosts: 0 }
+                            ],
+                            [ // (attempt to) relocate someone
+                                { drill: "[C1] Beta-7/Sigma-9/Alpha-1 Operative relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C2] Trainee Operative relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C3] Security Specialist/Senior/Lieutenant relocates an SD", response: "SD should follow orders up to BS junction. Refuse to go further. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C4] SRU Agent below Specialist relocates an SD", response: "SD should refuse orders. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C5] MP Officer below Specialist relocates an SD", response: "SD should follow orders up to BS junction. Refuse to go further. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C6] Level 4 relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 }
+
+                            ],
+                            [ // turn up late or attempt open
+                                { drill: `[D1] Level ${randomInt(0, 3)} turns up to the Breach Shelter late`, response: "SD should allow them to remain in the airlock. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D2] Level 4 orders BS to be opened", response: "SD should follow order. Extra comms credit if announced over radio.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D3] Level 3 orders BS to be opened", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D4] Security Lieutenant orders BS to be opened", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D5] SRU Captain orders BS to be opened", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D6] Department L4 orders BS to be opened", response: "SD should follow order. Extra comms credit if announced over radio.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D7] Beta-7/Sigma-9/Alpha-1 Operative orders BS to be opened", response: "SD should follow order. Extra comms credit if announced over radio.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // relocate /soft attempt open again/close
+                                { drill: "[E1] Beta-7/Sigma-9/Alpha-1 Operative relocates an SD", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E2] SRU Agent below Specialist relocates an SD", response: "SD should refuse orders. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E3] Beta-7/Sigma-9/Alpha-1 Operative orders BS to be open/closed.", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E4] Security Lieutenant orders BS to be open/closed", response: "SD should refuse order. Extra comms credit if acknowledging overstepping of authority.", cohosts: 0, maxCohosts: 3 }
+                            ]
+                        ]
+                    }
+                ]
+            },
+            "Paid Riot": {
+                cohosts: 0,
+                variants: [
+                    {
+                        weight: 50,
+                        cohosts: 0,
+                        positions: [
+                            [ // riot
+                                { drill: "[A1] Riot as a Class-D", response: "Attendees should terminate when a good opportunity is given.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[A2] Wall-shooting as a Class-D", response: "Attendees will push up temporarily to terminate you.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // test zd entry regs
+                                { drill: `[B1] Enter Zone D during the riot as a Level ${randomInt(0, 3)}`, response: "Attendees should order you out. Terminate after reasonable warnings and countdown, or if attempting to enter TSC.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[B2] Enter Zone D during the riot as a Level 4", response: "Attendees should ignore and allow you to stay.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // pushing formations
+                                { drill: "[C1] Pushing past formations as a Cadet/Junior/Sentinel/Senior", response: "Attendees will remind the combative on radio not to push. Extra comms credit if acknowledging guidelines violation.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // relocation orders
+                                { drill: "[D1] Relocation orders from SRU, MTF, or Senior+", response: "Attendees should comply if it does not break regulations.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // push orders during riot
+                                { drill: "[E1] SRU/MTF/Level-4+ orders push in during riot", response: "Because it's a paid riot, attendees should ignore the order.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E2] Unauthorized personnel orders push in during riot", response: "Attendees will ignore the order.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // post-riot push orders
+                                { drill: "[F1] SRU/MTF/Level-4+ orders push in after riot", response: "Attendees should push in.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[F2] Unauthorized personnel orders push in after riot", response: "Attendees will ignore the order.", cohosts: 0, maxCohosts: 3 }
+                            ]
+                        ]
+                    },
+                    {
+                        weight: 50,
+                        cohosts: 0,
+                        positions: [
+                            [ // riot
+                                { drill: "[A1] Riot as a Class-D", response: "Attendees should terminate when a good opportunity is given.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[A2] Wall-shooting as a Class-D", response: "Attendees will push up temporarily to terminate you.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // pushing formations
+                                { drill: "[B1] Pushing past formations as a Cadet/Junior/Sentinel/Senior", response: "Attendees will remind the combative on radio not to push. Extra comms credit if acknowledging guidelines violation.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // test zd entry regs
+                                { drill: `[C1] Enter Zone D during the riot as a Level ${randomInt(0, 3)}`, response: "Attendees should order you out. Terminate after reasonable warnings and countdown, or if attempting to enter TSC.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C2] Enter Zone D during the riot as a Level 4", response: "Attendees should ignore and allow you to stay.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // push orders during riot
+                                { drill: "[D1] SRU/MTF/Level-4+ orders push in during riot", response: "Because it's a paid riot, attendees should ignore the order.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[D2] Unauthorized personnel orders push in during riot", response: "Attendees will ignore the order.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // relocation orders
+                                { drill: "[E1] Relocation orders from an SRU Agent", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E2] Relocation orders from an SD Senior", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E3] Relocation orders from an MTF Operative", response: "SD should follow orders. Extra comms credit if notifying other SD.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // post-riot push orders
+                                { drill: "[F1] SRU/MTF/Level-4+ orders push in after riot", response: "Attendees should push in.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[F2] Unauthorized personnel orders push in after riot", response: "Attendees will ignore the order.", cohosts: 0, maxCohosts: 3 }
+                            ]
+                        ]
+                    }
+                ]
+            },
+            "Manual Riot": {
+                cohosts: 0,
+                variants: [
+                    {
+                        weight: 100,
+                        cohosts: 0,
+                        positions: [
+                            [ // riot behavior
+                                { drill: "[A1] Riot as a Class-D", response: "Attendees should terminate when a good opportunity is given.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[A2] Wall-shooting as a Class-D", response: "Attendees will push up temporarily to terminate you.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // entering zone D
+                                { drill: "[B1] Enter Zone D during the riot as a Level-3 or below", response: "Attendees should order you out. Terminate after reasonable warnings and countdown, or if TSC is approached.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[B2] Enter Zone D during the riot as a Level-4 or above", response: "Attendees should ignore and allow you to stay.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // pushing formations
+                                { drill: "[C1] Pushing past formations as a Base Senior or below", response: "Attendees will remind the combative on radio not to push. If ignored, report to command.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // relocation orders
+                                { drill: "[D1] Relocation orders from SRU, MTF, or Senior+", response: "Attendees should comply if it does not break regulations.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // push orders during riot
+                                { drill: "[E1] SRU/MTF/Level-4+ orders push in during riot", response: "Because it's a manual riot, attendees will push in.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E2] Unauthorized personnel orders push in during riot", response: "Attendees will ignore the order.", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // post-riot push orders
+                                { drill: "[F1] SRU/MTF/Level-4+ orders push in after riot", response: "Attendees should push in.", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[F2] Unauthorized personnel orders push in after riot", response: "Attendees will ignore the order.", cohosts: 0, maxCohosts: 3 }
+                            ]
+                        ]
+                    }
+                ]
+            },
+            "TSC Sim": {
+                cohosts: 0,
+                variants: [
+                    {
+                        weight: 33,
+                        cohosts: 0,
+                        positions: [
+                            [ // Position 1 drills
+                                { drill: "[A1] Riot as a Class-D", response: "Termination", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[A2] Step over the line as a Class-D", response: "Termination", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Position 2 drills
+                                { drill: "[B1] Push another Class-D over the line", response: "Warning > Termination", cohosts: 1, maxCohosts: 3 },
+                                { drill: "[B2] Order attendees to begin striking as Security Lieutenant+", response: "Attendees should begin striking", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Position 3 drills
+                                { drill: "[C1] Walk around as a Class-E", response: "Termination", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C2] Terminate a QnA host", response: "DFSC Status", cohosts: 1, maxCohosts: 3 }
+                            ],
+                            [ // Position 4 drills
+                                { drill: "[D1] Terminate a Level 4 inside TSC", response: "DFSC Status", cohosts: 1, maxCohosts: 3 },
+                                { drill: "[D2] Terminate a Level 4 on a combative team inside TSC", response: "Termination (no DFSC status)", cohosts: 1, maxCohosts: 3 }
+                            ],
+                            [ // Position 5 drills
+                                { drill: "[E1] Enter TSC as a Level 4", response: "Attendees should allow you to stay", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E2] Stand on the catwalks as a Level 3", response: "Attendees should allow you to stay", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Position 6 drills
+                                { drill: "[F1] Break the glass as a Class D then enter TSC as a Level 2 or below", response: "Attendees should instruct you to leave", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[F2] Relocate an SD as an SD Specialist", response: "Attendees should relocate if valid reasoning is given", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Position 7 drills
+                                { drill: "[G1] Relocate an SD as an SD Senior or above", response: "Attendees should relocate", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[G2] Heal a rioting Class D", response: "Termination", cohosts: 1, maxCohosts: 3 }
+                            ]
+                        ]
+                    },
+                    {
+                        weight: 33,
+                        cohosts: 0,
+                        positions: [
+                            [ // Position 6 drills
+                                { drill: "[F1] Break the glass as a Class D then enter TSC as a Level 2 or below", response: "Attendees should instruct you to leave", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[F2] Relocate an SD as an SD Specialist", response: "Attendees should relocate if valid reasoning is given", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Position 2 drills
+                                { drill: "[B1] Push another Class-D over the line", response: "Warning > Termination", cohosts: 1, maxCohosts: 3 },
+                                { drill: "[B2] Order attendees to begin striking as Security Lieutenant+", response: "Attendees should begin striking", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Position 3 drills
+                                { drill: "[C1] Walk around as a Class-E", response: "Termination", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C2] Terminate a QnA host", response: "DFSC Status", cohosts: 1, maxCohosts: 3 }
+                            ],
+                            [ // Position 5 drills
+                                { drill: "[E1] Enter TSC as a Level 4", response: "Attendees should allow you to stay", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E2] Stand on the catwalks as a Level 3", response: "Attendees should allow you to stay", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Position 4 drills
+                                { drill: "[D1] Terminate a Level 4 inside TSC", response: "DFSC Status", cohosts: 1, maxCohosts: 3 },
+                                { drill: "[D2] Terminate a Level 4 on a combative team inside TSC", response: "Termination (no DFSC status)", cohosts: 1, maxCohosts: 3 }
+                            ],
+                            [ // Position 7 drills
+                                { drill: "[G1] Relocate an SD as an SD Senior or above", response: "Attendees should relocate", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[G2] Heal a rioting Class D", response: "Termination", cohosts: 1, maxCohosts: 3 }
+                            ]
+                            [ // Position 1 drills
+                                { drill: "[A1] Riot as a Class-D", response: "Termination", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[A2] Step over the line as a Class-D", response: "Termination", cohosts: 0, maxCohosts: 3 }
+                            ]
+                        ]
+                    },
+                    {
+                        weight: 33,
+                        cohosts: 0,
+                        positions: [
+                            [ // Position 7 drills
+                                { drill: "[G1] Relocate an SD as an SD Senior or above", response: "Attendees should relocate", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[G2] Heal a rioting Class D", response: "Termination", cohosts: 1, maxCohosts: 3 }
+                            ],
+                            [ // Position 6 drills
+                                { drill: "[F1] Break the glass as a Class D then enter TSC as a Level 2 or below", response: "Attendees should instruct you to leave", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[F2] Relocate an SD as an SD Specialist", response: "Attendees should relocate if valid reasoning is given", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Position 4 drills
+                                { drill: "[D1] Terminate a Level 4 inside TSC", response: "DFSC Status", cohosts: 1, maxCohosts: 3 },
+                                { drill: "[D2] Terminate a Level 4 on a combative team inside TSC", response: "Termination (no DFSC status)", cohosts: 1, maxCohosts: 3 }
+                            ],
+                            [ // Position 2 drills
+                                { drill: "[B1] Push another Class-D over the line", response: "Warning > Termination", cohosts: 1, maxCohosts: 3 },
+                                { drill: "[B2] Order attendees to begin striking as Security Lieutenant+", response: "Attendees should begin striking", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Position 5 drills
+                                { drill: "[E1] Enter TSC as a Level 4", response: "Attendees should allow you to stay", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[E2] Stand on the catwalks as a Level 3", response: "Attendees should allow you to stay", cohosts: 0, maxCohosts: 3 }
+                            ],
+                            [ // Position 3 drills
+                                { drill: "[C1] Walk around as a Class-E", response: "Termination", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[C2] Terminate a QnA host", response: "DFSC Status", cohosts: 1, maxCohosts: 3 }
+                            ],
+                            [ // Position 1 drills
+                                { drill: "[A1] Riot as a Class-D", response: "Termination", cohosts: 0, maxCohosts: 3 },
+                                { drill: "[A2] Step over the line as a Class-D", response: "Termination", cohosts: 0, maxCohosts: 3 }
+                            ]
+                        ]
+                    }
+                ]
+            },
+        "Intercom Sweep": {
+            description: "lol",
+            cohosts: 0
+        },
+        "Hostage Situation": {
+            description: "um",
+            cohosts: 1
+        }
         };
 
-        const maxDrillsPerScenario = {
-            "Red Fox": 5,
-            "Red Spread": 5,
-            "Riot": 5,
-            "TSC Sim": 7
-        };
+        function getRandomItem(array, requiredCohosts = 0) {
+            const validItems = array.filter(item => {
+                const itemCohosts = scenarioData[item]?.cohosts || 0;
+                return getCohostCount() >= itemCohosts;
+            });
+            return validItems[Math.floor(Math.random() * validItems.length)];
+        }
 
-        function getRandomItem(array) {
-            return array[Math.floor(Math.random() * array.length)];
+        function randomInt(min, max) {
+            if (min === undefined || max === undefined) {
+                return Math.floor(Math.random() * 4);
+            }
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function getCohostCount() {
+            return parseInt(document.getElementById('cohostCount').value) || 0;
+        }
+
+        function getRandomVariant(scenario) {
+            const variants = scenarioData[scenario].variants;
+            if (!variants) return null;
+
+            const validVariants = variants.filter(v => getCohostCount() >= (v.cohosts || 0));
+            if (validVariants.length === 0) return null;
+
+            const totalWeight = validVariants.reduce((sum, variant) => sum + (variant.weight || 1), 0);
+            let random = Math.random() * totalWeight;
+
+            for (const variant of validVariants) {
+                random -= (variant.weight || 1);
+                if (random <= 0) return variant;
+            }
+            return validVariants[0];
         }
 
         function getRandomDrills(scenario) {
-            const scenarioDrills = drills[scenario];
-            const maxDrills = maxDrillsPerScenario[scenario];
-            const shuffled = scenarioDrills.sort(() => 0.5 - Math.random());
-            const selectedDrills = [];
-            const usedIdentifiers = new Set();
+            const data = scenarioData[scenario];
+            if (!data) return [];
+            if (data.description) return [{ drill: "Description", response: data.description }];
 
-            for (let i = 0; i < shuffled.length && selectedDrills.length < maxDrills; i++) {
-                const drill = shuffled[i];
-                if (!usedIdentifiers.has(drill.identifier)) {
-                    selectedDrills.push(drill);
-                    usedIdentifiers.add(drill.identifier);
+            const variant = getRandomVariant(scenario);
+            if (!variant) return [];
+
+            const cohostCount = getCohostCount();
+
+            return variant.positions.map(positionDrills => {
+                const validDrills = positionDrills.filter(d => {
+                    const minCohosts = d.cohosts || 0;
+                    const maxCohosts = d.maxCohosts || Infinity;
+                    return cohostCount >= minCohosts && cohostCount <= maxCohosts;
+                });
+
+                if (validDrills.length === 0) {
+                    // Try to find a drill with the closest requirements
+                    const fallbackDrills = positionDrills.sort((a, b) =>
+                        Math.abs((a.cohosts || 0) - cohostCount) - Math.abs((b.cohosts || 0) - cohostCount)
+                    );
+                    if (fallbackDrills.length > 0) {
+                        const selectedDrill = fallbackDrills[0];
+                        return {
+                            drill: selectedDrill.drill,
+                            response: selectedDrill.response
+                        };
+                    }
+                    return { drill: "No suitable drill available", response: "Skip this position" };
                 }
-            }
-            return selectedDrills;
+
+                const selectedDrill = getRandomItem(validDrills);
+                return {
+                    drill: selectedDrill.drill,
+                    response: selectedDrill.response
+                };
+            });
         }
 
         function generatePlan() {
@@ -183,13 +577,13 @@
             const scenario2 = getRandomItem(scenarios.group2);
             const scenario3 = getRandomItem(scenarios.group3);
 
-            
+
             plan += `[${scenario1}]\n`;
             getRandomDrills(scenario1).forEach((item, index) => {
                 plan += `${index + 1}. ${item.drill}\n> ${item.response}\n`;
             });
 
-            
+
             plan += `\n[${scenario2}]\n`;
             if (scenario2 !== "Intercom Sweep") {
                 getRandomDrills(scenario2).forEach((item, index) => {
@@ -197,7 +591,7 @@
                 });
             }
 
-            
+
             plan += `\n[${scenario3}]\n`;
             if (scenario3 !== "Hostage Situation") {
                 getRandomDrills(scenario3).forEach((item, index) => {
